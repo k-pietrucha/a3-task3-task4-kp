@@ -1,0 +1,40 @@
+---
+title: 'Assignment 3: Santa Barbara Urchins'
+author: "Katie Pietrucha"
+date: "10/28/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, message = FALSE)
+
+library(tidyverse)
+library(here)
+library(janitor)
+```
+# Overview
+
+In this task, you will use version control, project management, and data wrangling, analysis & visualization skills to explore red and purple urchins recorded by Santa Barbara Coastal Long Term Ecological Research program divers, while practicing version control and project management.
+
+**Data:** Reed, D. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b. 
+
+# Read in the data and convert column names to lower snake case using `clean_names`.
+
+```{r}
+urchins_data <- read_csv(here("data", "urchins.csv")) %>%
+  clean_names
+```
+
+# Section 1: Size comparisons, purple and red urchins
+
+```{r}
+ggplot(data = urchins_data, aes(x = size, fill = common_name)) +
+  scale_fill_manual(values = c("purple", "red")) +
+  geom_histogram(bins = 10) +
+  facet_wrap(~ common_name) +
+  theme_bw() +
+  labs(x = "Size (cm)", y = "Number of urchins") +
+  ggtitle("Distribution of urchin sizes by species") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
