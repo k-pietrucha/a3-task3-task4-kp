@@ -62,7 +62,7 @@ urchins_data %>%
             "Median" = round(median(size),1),
             "Standard Deviation" = round(sd(size), 1),
             "Sample Size" = n()) %>%
-  kbl(caption = "<center>Summary statistics for purple and red urchin diameters</center>", col.names = c("Species", "Mean (cm)", "Median (cm)", "Standard Deviation (cm)", "Sample Size")) %>%
+  kbl(caption = "<center><strong>Figure 1.2: Summary Statistics by Species.</strong> Mean, median, and standard deviation for purple and red sea urchin diameters. This table also includes sample sizes for both populations.</center>", col.names = c("Species", "Mean (cm)", "Median (cm)", "Standard Deviation (cm)", "Sample Size")) %>%
   kable_paper(full_width = FALSE) %>%
   column_spec(2:5, width = "4cm")
 ```
@@ -103,7 +103,7 @@ purple_urchin_table <- purple_urchins %>%
 
 I made faceted bar graphs showing counts of purple urchins recorded at each site over time for the years included in the study.
 
-```{r, fig.cap="**Figure 1.2:** Purple urchin populations at 5 Santa Barbara-area sampling sites (2008-2020)"}
+```{r, fig.cap="**Figure 1.3:** Purple urchin populations at 5 Santa Barbara-area sampling sites (2008-2020)"}
 purple_urchin_table %>%
   ggplot(aes(x = year, y = count, fill = site_full)) +
   geom_bar(stat = "identity") +
