@@ -13,12 +13,72 @@ library(here)
 library(tidyverse)
 library(kableExtra)
 library(lubridate)
+library(janitor)
 ```
 
 ## Overview
 
+Compare the mean size of purple urchins in CONTROL (no giant kelp removal) or ANNUAL (annual kelp removal) sections of Naples Reef in 2010.
+
+### Read in the data
+
+Read in the data and convert column names to lower snake case using `clean_names`.
+
+```{r}
+urchins_data <- read_csv(here("data", "urchins.csv")) %>%
+  clean_names
+```
+
 ## Data Wrangling
+
+Wrangle the urchins data to only include Naples Reef observations for purple urchins observed in 2010.
+
+```{r}
+purple_urchins_napl <- urchins_data %>% 
+  mutate(date = mdy(date)) %>%
+  mutate(year = year(date)) %>%
+filter(common_name == "Purple Urchin", site == "NAPL", year == "2010") 
+```
 
 ## Exploratory Data Visualization
 
+Look at and consider exploratory faceted histograms and QQ-plots for the size distribution of purple urchins at Naples in 2010, separated by treatment (Control and Annual), to assess normality.
+
+### Faceted Histogram 
+
+```{r}
+purple_urchins_napl %>%
+  ggplot(aes(x = size)) +
+  facet_wrap(~ treatment) +
+  geom_histogram(bins = 10)
+```
+Takeaways:
+
+### Faceted QQ-plot
+
+```{r}
+purple_urchins_napl %>%
+  ggplot(aes(sample = size)) +
+  facet_wrap(~ treatment) +
+  geom_qq() +
+  stat_qq_line()
+```
+Takeaway:
+
 ## Summary Table
+
+Create a finalized basic summary table (with table caption above) of descriptive statistics for both groups (including at least the mean, standard deviation, and sample size by treatment). 
+
+```{r}
+purple_urchins_napl %>%
+  group_by(treatment) %>%
+  summarize("Mean" = round(mean(size), 1),
+            "Median" = round(median(size),1),
+            "Standard Deviation" = round(sd(size), 1),
+            "Sample Size" = n()) %>%
+  kbl(caption = "<center><strong>Figure 1.1: Summary Statistics for Purple Urchins at the Naples Reef.</strong>: Mean, median, and standard deviation of purple sea urchin diameters for two treatments. CONTROL indicates no giant kelp removal and ANNUAL indicates annual giant kelp removal.This table also includes sample sizes for both populations.</center>", col.names = c("Treatment", "Mean (cm)", "Median (cm)", "Standard Deviation (cm)", "Sample Size")) %>%
+  kable_paper(full_width = FALSE) %>%
+  column_spec(2:5, width = "4cm")
+```
+
+Takeaway:
