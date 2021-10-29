@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, message = FALSE)
 library(tidyverse)
 library(here)
 library(janitor)
+library(kableExtra)
+library(knitr)
 ```
 # Overview
 
@@ -27,14 +29,37 @@ urchins_data <- read_csv(here("data", "urchins.csv")) %>%
 
 # Section 1: Size comparisons, purple and red urchins
 
+## Data visualization 
+
+Compare the distribution of sizes between purple and red urchins with a finalized, faceted histogram. 
+
 ```{r}
 ggplot(data = urchins_data, aes(x = size, fill = common_name)) +
-  scale_fill_manual(values = c("purple", "red")) +
+  scale_fill_manual(values = c("purple3", "red3")) +
   geom_histogram(bins = 10) +
   facet_wrap(~ common_name) +
   theme_bw() +
   labs(x = "Size (cm)", y = "Number of urchins") +
   ggtitle("Distribution of urchin sizes by species") +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none")
 ```
+
+## Descriptive Statistis Table
+
+Create a finalized summary table that contains the following statistics for purple and red urchins (still ignoring site as a variable, but including species as a grouping variable): mean, median, standard deviation, and sample size.
+
+```{r}
+urchins_data %>%
+  group_by(common_name) %>%
+  summarize("Mean" = round(mean(size), 1),
+            "Median" = round(median(size),1),
+            "Standard Deviation" = round(sd(size), 1),
+            "Sample Size" = n()) %>%
+  kbl(caption = "<center>Summary statistics for purple and red urchin sizes</center>", col.names = c("Species", "Mean (cm)", "Median (cm)", "Standard Deviation (cm)", "Sample Size")) %>%
+  kable_paper(full_width = FALSE) %>%
+  column_spec(2:5, width = "4cm")
+```
+
+## Analysis
 
