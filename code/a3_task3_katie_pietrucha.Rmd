@@ -1,53 +1,59 @@
 ---
-title: 'Assignment 3: Santa Barbara Urchins'
+title: 'Task 3: Santa Barbara Urchins'
 author: "Katie Pietrucha"
 date: "10/28/2021"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, message = FALSE)
+## Setup
+
+```{r setup, include=TRUE, warning = FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 library(tidyverse)
 library(here)
 library(janitor)
 library(kableExtra)
 library(knitr)
+library(lubridate)
 ```
-# Overview
 
-In this task, you will use version control, project management, and data wrangling, analysis & visualization skills to explore red and purple urchins recorded by Santa Barbara Coastal Long Term Ecological Research program divers, while practicing version control and project management.
+## Overview
+
+This document explores red and purple urchin populations recorded by Santa Barbara Coastal Long Term Ecological Research program divers.
 
 **Data:** Reed, D. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b. 
 
-# Read in the data and convert column names to lower snake case using `clean_names`.
+### Import and clean data
+
+Read in the data and convert column names to lower snake case using `clean_names`.
 
 ```{r}
 urchins_data <- read_csv(here("data", "urchins.csv")) %>%
   clean_names
 ```
 
-# Section 1: Size comparisons, purple and red urchins
+## Section 1: Size comparisons: purple and red urchins
 
-## Data visualization 
+### Data visualization 
 
-Compare the distribution of sizes between purple and red urchins with a finalized, faceted histogram. 
+This histogram compares the distribution of sizes (diameter) between purple and red urchins.
 
-```{r}
+```{r, fig.cap="**Figure 1.1:** The distribution of urchin diameter (cm) by for purple and red urchins."}
 ggplot(data = urchins_data, aes(x = size, fill = common_name)) +
   scale_fill_manual(values = c("purple3", "red3")) +
   geom_histogram(bins = 10) +
   facet_wrap(~ common_name) +
   theme_bw() +
-  labs(x = "Size (cm)", y = "Number of urchins") +
+  labs(x = "Urchin diameter (cm)", y = "Number of urchins") +
   ggtitle("Distribution of urchin sizes by species") +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(legend.position = "none")
 ```
 
-## Descriptive Statistis Table
+### Statistics Table
 
-Create a finalized summary table that contains the following statistics for purple and red urchins (still ignoring site as a variable, but including species as a grouping variable): mean, median, standard deviation, and sample size.
+This summary table shows the mean, median, and standard deviation for urchin diameter  and the sample size for the purple and red urchin populations.
 
 ```{r}
 urchins_data %>%
@@ -56,10 +62,62 @@ urchins_data %>%
             "Median" = round(median(size),1),
             "Standard Deviation" = round(sd(size), 1),
             "Sample Size" = n()) %>%
-  kbl(caption = "<center>Summary statistics for purple and red urchin sizes</center>", col.names = c("Species", "Mean (cm)", "Median (cm)", "Standard Deviation (cm)", "Sample Size")) %>%
+  kbl(caption = "<center>Summary statistics for purple and red urchin diameters</center>", col.names = c("Species", "Mean (cm)", "Median (cm)", "Standard Deviation (cm)", "Sample Size")) %>%
   kable_paper(full_width = FALSE) %>%
   column_spec(2:5, width = "4cm")
 ```
 
-## Analysis
+### Preliminary Analysis
 
+Based on this data exploration, purple urchins appear to be smaller in diameter than red urchins. Additionally, the standard deviation is smaller as well, meaning that there is less variation in size among purple urchins. The difference in mean diameter is 2.3cm. It is a small value, but it represents a 40.7% difference in size.
+
+## Section 2: Exploring purple urchin counts by site and year
+
+### Data wrangling
+
+I created a stored subset of the urchins data called `purple_urchins` which includes new columns for `year` and `site_full` which contained the full names for five sampling sites.
+
+```{r}
+purple_urchins <- urchins_data %>%
+  filter(common_name == "Purple Urchin") %>%
+  mutate(date = mdy(date)) %>%
+  mutate(year = year(date)) %>%
+  mutate(site_full = case_when(
+    site == "NAPL" ~ "Naples Reef",
+    site == "AQUE" ~ "Arroyo Quemado Reef",
+    site == "CARP" ~ "Carpinteria Reef",
+    site == "IVEE" ~ "Isla Vista Reef",
+    site == "MOHK" ~ "Mohawk Reef"))
+```
+ 
+I also stored a table containing the total number of purple urchins observed by site and year. 
+
+```{r}
+purple_urchin_table <- purple_urchins %>%
+  group_by(site_full, year) %>%
+  filter(site_full != "NA") %>%
+  summarize("count" = n())
+```
+
+### Data visualization
+
+I made faceted bar graphs showing counts of purple urchins recorded at each site over time for the years included in the study.
+
+```{r, fig.cap="**Figure 1.2:** Purple urchin populations at 5 Santa Barbara-area sampling sites (2008-2020)"}
+purple_urchin_table %>%
+  ggplot(aes(x = year, y = count, fill = site_full)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ site_full) +
+  theme_bw() +
+  scale_fill_manual(values = c("darkseagreen3", "seashell3", "cadetblue3", "salmon2", "lightgoldenrod3")) +
+  labs(x = "Year", y = "Number of urchins") +
+  ggtitle("Purple urchin counts by site (2008-2020)") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") 
+```
+
+### Analysis
+
+I think it is possible that these graphs reflect changes in the purple urchin population, but there are some variables that are unaccounted for. Have the researchers sampled for the same number of days/hours every year? Were conditions and visibility similar on sampling days? I could imagine increased water turbidity throughout the year and across seasons could have an effect on the number or urchins observed. Similarly, was sampling done at the same times of day and year? Have there been any environmental changes that could have caused the urchins to move away from these reefs and out of the sampling areas without an impact on overall purple urchin populations in the Santa Barbara area? Clearly, there are some variables that would need to be addressed before drawing firm conclusions from this data, but this exercise in exploration has started the analysis process.
+
+# End Task 3
