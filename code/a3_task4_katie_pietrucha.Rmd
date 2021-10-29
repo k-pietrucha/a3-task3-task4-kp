@@ -18,7 +18,7 @@ library(janitor)
 
 ## Overview
 
-Compare the mean size of purple urchins in CONTROL (no giant kelp removal) or ANNUAL (annual kelp removal) sections of Naples Reef in 2010.
+This document compares the mean size of purple urchins in two sections of Naples Reef in 2010 with varying treatments: CONTROL (no giant kelp removal) and ANNUAL (annual kelp removal).
 
 ### Read in the data
 
@@ -31,7 +31,7 @@ urchins_data <- read_csv(here("data", "urchins.csv")) %>%
 
 ## Data Wrangling
 
-Wrangle the urchins data to only include Naples Reef observations for purple urchins observed in 2010.
+I wrangled the urchins data to include only Naples Reef observations for purple urchins in 2010.
 
 ```{r}
 purple_urchins_napl <- urchins_data %>% 
@@ -42,7 +42,7 @@ filter(common_name == "Purple Urchin", site == "NAPL", year == "2010")
 
 ## Exploratory Data Visualization
 
-Look at and consider exploratory faceted histograms and QQ-plots for the size distribution of purple urchins at Naples in 2010, separated by treatment (Control and Annual), to assess normality.
+I created an exploratory faceted histogram and QQ-plot for the size distribution of purple urchins at Naples in 2010, separated by treatment (Control and Annual), to assess normality.
 
 ### Faceted Histogram 
 
@@ -52,7 +52,8 @@ purple_urchins_napl %>%
   facet_wrap(~ treatment) +
   geom_histogram(bins = 10)
 ```
-Takeaways:
+
+Based on this histogram, it appears that purple urchins in the "ANNUAL" treatment (annual giant kelp removal) may have a slightly smaller diameter than those in the "CONTROL" treatment (no giant kelp removal). The data spread seems approximately the same between treatments and the distributions appear to be normal. 
 
 ### Faceted QQ-plot
 
@@ -63,11 +64,12 @@ purple_urchins_napl %>%
   geom_qq() +
   stat_qq_line()
 ```
-Takeaway:
+
+Based on this Q-Q plot, it appears that the samples from both treatments came from populations with a normal distribution since they both lie approximately on the 45 degree line. It also appears that the distributions are very similar and could have plausibly come from the same population. This would suggest that there is no significant difference in urchin diameters between the two treatments.
 
 ## Summary Table
 
-Create a finalized basic summary table (with table caption above) of descriptive statistics for both groups (including at least the mean, standard deviation, and sample size by treatment). 
+This is a basic summary table of descriptive statistics for both treatments. 
 
 ```{r}
 purple_urchins_napl %>%
@@ -76,9 +78,11 @@ purple_urchins_napl %>%
             "Median" = round(median(size),1),
             "Standard Deviation" = round(sd(size), 1),
             "Sample Size" = n()) %>%
-  kbl(caption = "<center><strong>Figure 1.1: Summary Statistics for Purple Urchins at the Naples Reef.</strong>: Mean, median, and standard deviation of purple sea urchin diameters for two treatments. CONTROL indicates no giant kelp removal and ANNUAL indicates annual giant kelp removal.This table also includes sample sizes for both populations.</center>", col.names = c("Treatment", "Mean (cm)", "Median (cm)", "Standard Deviation (cm)", "Sample Size")) %>%
+  kbl(caption = "<center><strong>Figure 1.1: Summary Statistics for Purple Urchin Diameter at the Naples Reef.</strong>: Mean, median, and standard deviation of purple sea urchin diameters for two treatments. CONTROL indicates no giant kelp removal and ANNUAL indicates annual giant kelp removal.This table also includes sample sizes for both populations.</center>", col.names = c("Treatment", "Mean (cm)", "Median (cm)", "Standard Deviation (cm)", "Sample Size")) %>%
   kable_paper(full_width = FALSE) %>%
   column_spec(2:5, width = "4cm")
 ```
 
-Takeaway:
+Based on this data, purple urchins in the ANNUAL treatment are slightly smaller on average than those in the CONTROL treatment. The standard deviations are identical, meaning that there is the same amount of variation in both groups. The difference in mean diameter is 0.2cm, which is only a 5.3% difference in size. Hypothesis testing should be completed, but it appears that the size difference as a result of treatment is not significant.
+
+## END TASK 4
